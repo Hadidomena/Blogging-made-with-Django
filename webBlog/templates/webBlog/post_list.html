@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Blog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .post {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .post h2 {
+            margin-top: 0;
+        }
+        .post a {
+            text-decoration: none;
+            color: #333;
+        }
+        .post a:hover {
+            color: #007bff;
+        }
+        .post-meta {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>My Blog Posts</h1>
+    
+    {% if posts %}
+        {% for post in posts %}
+            <div class="post">
+                <h2><a href="{% url 'post_detail' post.pk %}">{{ post.title }}</a></h2>
+                <div class="post-meta">
+                    By {{ post.author }} on {{ post.created_at|date:"F d, Y" }}
+                </div>
+                <p>{{ post.content|truncatewords:30 }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No blog posts yet. <a href="/admin/">Add some posts</a> in the admin panel!</p>
+    {% endif %}
+</body>
+</html>
