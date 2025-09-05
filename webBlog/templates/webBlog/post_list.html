@@ -30,6 +30,11 @@
             font-size: 0.9em;
             margin-bottom: 10px;
         }
+        .comment-count {
+            color: #007bff;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -43,6 +48,9 @@
                     By {{ post.author }} on {{ post.created_at|date:"F d, Y" }}
                 </div>
                 <p>{{ post.content|truncatewords:30 }}</p>
+                <div class="comment-count">
+                    {{ post.comments.count }} comment{{ post.comments.count|pluralize }}
+                </div>
             </div>
         {% endfor %}
     {% else %}
