@@ -191,9 +191,73 @@
         .comment-form.show {
             display: block;
         }
+        .navbar {
+            background-color: #007bff;
+            padding: 15px 0;
+            margin: -20px -20px 30px -20px;
+            border-radius: 0;
+        }
+        .nav-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        .nav-title {
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        .nav-user {
+            color: white;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="{% url 'post_list' %}" class="nav-title">📝 My Blog</a>
+            <div class="nav-links">
+                <a href="{% url 'markdown_guide' %}" class="nav-link">📖 Markdown Guide</a>
+                {% if user.is_authenticated %}
+                    <span class="nav-user">👋 Hello, {{ user.username }}!</span>
+                    <a href="{% url 'logout' %}" class="nav-link">🚪 Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="nav-link">🔐 Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <a href="{% url 'post_list' %}" class="back-link">← Back to all posts</a>
     
     <h1>{{ post.title }}</h1>
@@ -253,8 +317,9 @@
             </div>
         {% else %}
             <div class="login-prompt">
-                <p><strong>Please <a href="/admin/login/">log in</a> to post a comment.</strong></p>
-                <p>You can log in using the admin panel or create an account there.</p>
+                <h4>💬 Want to join the conversation?</h4>
+                <p><a href="{% url 'login' %}">Login</a> to add your comment and engage with the community!</p>
+                <p style="font-size: 0.9em; color: #666;">Don't have an account? Contact the admin or <a href="/admin/">create one here</a>.</p>
             </div>
         {% endif %}
     </div>

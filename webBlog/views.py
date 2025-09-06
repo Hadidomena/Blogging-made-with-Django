@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .models import Post, Comment
 from .forms import CommentForm
@@ -24,7 +25,7 @@ def post_detail(request, pk):
                 return redirect('post_detail', pk=post.pk)
         else:
             messages.error(request, 'You need to be logged in to comment.')
-            return redirect('post_detail', pk=post.pk)
+            return redirect('login')
     else:
         form = CommentForm()
     
@@ -36,3 +37,21 @@ def post_detail(request, pk):
 
 def markdown_guide(request):
     return render(request, 'webBlog/markdown_guide.html')
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, f'Welcome back, {user.username}!')
+            return redirect('post_list')
+        else:
+            messages.error(request, 'Invalid username or password.')
+    return render(request, 'webBlog/login.html')
+
+def logout_view(request):
+    logout(request)
+    messages.success(request, 'You have been logged out.')
+    return redirect('post_list')
