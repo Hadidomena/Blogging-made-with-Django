@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Markdown Guide - My Blog</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .guide-section {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .example {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        .result {
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 3px;
+            margin: 10px 0;
+        }
+        .back-link {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .back-link:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <a href="{% url 'post_list' %}" class="back-link">← Back to Blog</a>
+    
+    <h1>📝 Markdown Formatting Guide</h1>
+    
+    <div class="guide-section">
+        <h2>Basic Text Formatting</h2>
+        
+        <h3>Bold and Italic</h3>
+        <div class="example">**Bold text** or __Bold text__</div>
+        <div class="result"><strong>Bold text</strong></div>
+        
+        <div class="example">*Italic text* or _Italic text_</div>
+        <div class="result"><em>Italic text</em></div>
+        
+        <div class="example">***Bold and italic*** or ___Bold and italic___</div>
+        <div class="result"><strong><em>Bold and italic</em></strong></div>
+    </div>
+    
+    <div class="guide-section">
+        <h2>Headers</h2>
+        <div class="example"># Header 1<br>## Header 2<br>### Header 3</div>
+        <div class="result">
+            <h1 style="margin: 5px 0;">Header 1</h1>
+            <h2 style="margin: 5px 0;">Header 2</h2>
+            <h3 style="margin: 5px 0;">Header 3</h3>
+        </div>
+    </div>
+    
+    <div class="guide-section">
+        <h2>Lists</h2>
+        
+        <h3>Unordered Lists</h3>
+        <div class="example">- Item 1<br>- Item 2<br>- Item 3</div>
+        <div class="result">
+            <ul>
+                <li>Item 1</li>
+                <li>Item 2</li>
+                <li>Item 3</li>
+            </ul>
+        </div>
+        
+        <h3>Ordered Lists</h3>
+        <div class="example">1. First item<br>2. Second item<br>3. Third item</div>
+        <div class="result">
+            <ol>
+                <li>First item</li>
+                <li>Second item</li>
+                <li>Third item</li>
+            </ol>
+        </div>
+    </div>
+    
+    <div class="guide-section">
+        <h2>Links and Images</h2>
+        
+        <h3>Links</h3>
+        <div class="example">[Link text](https://example.com)</div>
+        <div class="result"><a href="https://example.com">Link text</a></div>
+        
+        <h3>Images</h3>
+        <div class="example">![Alt text](https://via.placeholder.com/300x200)</div>
+        <div class="result"><img src="https://via.placeholder.com/300x200" alt="Alt text" style="max-width: 100%;"></div>
+    </div>
+    
+    <div class="guide-section">
+        <h2>Code</h2>
+        
+        <h3>Inline Code</h3>
+        <div class="example">Use `inline code` in sentences</div>
+        <div class="result">Use <code>inline code</code> in sentences</div>
+        
+        <h3>Code Blocks</h3>
+        <div class="example">```<br>function hello() {<br>&nbsp;&nbsp;console.log("Hello World!");<br>}<br>```</div>
+        <div class="result">
+            <pre><code>function hello() {
+  console.log("Hello World!");
+}</code></pre>
+        </div>
+    </div>
+    
+    <div class="guide-section">
+        <h2>Quotes</h2>
+        <div class="example">> This is a blockquote<br>> It can span multiple lines</div>
+        <div class="result">
+            <blockquote style="border-left: 4px solid #007bff; padding-left: 20px; margin: 20px 0; font-style: italic; color: #666;">
+                This is a blockquote<br>
+                It can span multiple lines
+            </blockquote>
+        </div>
+    </div>
+    
+    <div class="guide-section">
+        <h2>Tables</h2>
+        <div class="example">| Header 1 | Header 2 |<br>|----------|----------|<br>| Cell 1   | Cell 2   |<br>| Cell 3   | Cell 4   |</div>
+        <div class="result">
+            <table style="border-collapse: collapse; width: 100%;">
+                <tr>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #f8f9fa;">Header 1</th>
+                    <th style="border: 1px solid #ddd; padding: 8px; background-color: #f8f9fa;">Header 2</th>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Cell 1</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Cell 2</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Cell 3</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Cell 4</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="guide-section" style="background-color: #e7f3ff;">
+        <h2>🎯 Pro Tips</h2>
+        <ul>
+            <li>Leave blank lines between different elements for better formatting</li>
+            <li>For images, use free services like <strong>via.placeholder.com</strong> for testing</li>
+            <li>External links will automatically open in new tabs</li>
+            <li>You can combine multiple formatting options</li>
+        </ul>
+    </div>
+    
+    <p style="text-align: center; margin-top: 30px;">
+        <a href="/admin/" class="back-link">Go to Admin Panel to Create Posts</a>
+    </p>
+</body>
+</html>

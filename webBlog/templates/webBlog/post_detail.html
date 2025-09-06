@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load markdown_extras %}
 <html>
 <head>
     <title>{{ post.title }}</title>
@@ -17,6 +18,72 @@
         .post-content {
             line-height: 1.6;
             margin-bottom: 30px;
+        }
+        /* Markdown styling */
+        .post-content h1, .post-content h2, .post-content h3 {
+            color: #333;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        .post-content h1 { font-size: 1.8em; }
+        .post-content h2 { font-size: 1.5em; }
+        .post-content h3 { font-size: 1.3em; }
+        .post-content p {
+            margin-bottom: 15px;
+        }
+        .post-content ul, .post-content ol {
+            margin-bottom: 15px;
+            padding-left: 30px;
+        }
+        .post-content li {
+            margin-bottom: 5px;
+        }
+        .post-content blockquote {
+            border-left: 4px solid #007bff;
+            padding-left: 20px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #666;
+        }
+        .post-content code {
+            background-color: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .post-content pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .post-content pre code {
+            background: none;
+            padding: 0;
+        }
+        .markdown-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .post-content table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }
+        .post-content table th,
+        .post-content table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .post-content table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
         }
         .back-link {
             display: inline-block;
@@ -105,6 +172,25 @@
             border-left: 4px solid #007bff;
             margin-top: 20px;
         }
+        .add-comment-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .add-comment-btn:hover {
+            background-color: #218838;
+        }
+        .comment-form {
+            display: none;
+        }
+        .comment-form.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -118,7 +204,7 @@
         {% endif %}
     </div>
     <div class="post-content">
-        {{ post.content|linebreaks }}
+        {{ post.content|markdown_to_html }}
     </div>
 
     <div class="comments-section">
@@ -150,7 +236,10 @@
         {% endif %}
         
         {% if user.is_authenticated %}
-            <div class="comment-form">
+            <button type="button" class="add-comment-btn" id="addCommentBtn" onclick="toggleCommentForm()">
+                📝 Add a Comment
+            </button>
+            <div class="comment-form" id="commentForm">
                 <h4>Add a comment</h4>
                 <form method="post">
                     {% csrf_token %}
@@ -159,6 +248,7 @@
                         {{ form.content }}
                     </div>
                     <button type="submit" class="btn">Post Comment</button>
+                    <button type="button" class="btn" style="background-color: #6c757d; margin-left: 10px;" onclick="toggleCommentForm()">Cancel</button>
                 </form>
             </div>
         {% else %}
@@ -168,5 +258,29 @@
             </div>
         {% endif %}
     </div>
+
+    <script>
+        function toggleCommentForm() {
+            const btn = document.getElementById('addCommentBtn');
+            const form = document.getElementById('commentForm');
+            
+            if (form.classList.contains('show')) {
+                form.classList.remove('show');
+                btn.style.display = 'inline-block';
+                btn.textContent = '📝 Add a Comment';
+            } else {
+                form.classList.add('show');
+                btn.style.display = 'none';
+            }
+        }
+
+        // Show the button when page loads if user is authenticated
+        document.addEventListener('DOMContentLoaded', function() {
+            const btn = document.getElementById('addCommentBtn');
+            if (btn) {
+                btn.style.display = 'inline-block';
+            }
+        });
+    </script>
 </body>
 </html>

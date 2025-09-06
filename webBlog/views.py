@@ -33,3 +33,6 @@ def post_detail(request, pk):
         'comments': comments,
         'form': form
     })
+
+def markdown_guide(request):
+    return render(request, 'webBlog/markdown_guide.html')
