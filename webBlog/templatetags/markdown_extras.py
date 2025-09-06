@@ -39,3 +39,38 @@ def markdown_to_html(value):
     html = re.sub(r'<a href="http', r'<a target="_blank" href="http', html)
     
     return mark_safe(html)
+
+@register.filter
+def markdown_to_html_safe(value):
+    """
+    Convert markdown text to HTML but strip images and links for comments
+    """
+    if not value:
+        return ''
+    
+    # Configure markdown with basic extensions only
+    md = markdown.Markdown(
+        extensions=[
+            'markdown.extensions.fenced_code',
+            'markdown.extensions.nl2br',
+            'markdown.extensions.codehilite',
+        ],
+        extension_configs={
+            'markdown.extensions.codehilite': {
+                'css_class': 'highlight',
+                'use_pygments': False,
+            }
+        }
+    )
+    
+    # Convert markdown to HTML
+    html = md.convert(value)
+    
+    # Remove images and links for security
+    html = re.sub(r'<img[^>]*>', '', html)  # Remove all img tags
+    html = re.sub(r'<a[^>]*>(.*?)</a>', r'\1', html)  # Remove links but keep text
+    
+    # Clean up any remaining href attributes that might have been missed
+    html = re.sub(r'href="[^"]*"', '', html)
+    
+    return mark_safe(html)

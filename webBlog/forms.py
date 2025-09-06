@@ -8,10 +8,13 @@ class CommentForm(forms.ModelForm):
         widgets = {
             'content': forms.Textarea(attrs={
                 'rows': 4,
-                'placeholder': 'Write your comment here...',
+                'placeholder': 'Write your comment here... (Markdown supported: **bold**, *italic*, `code`, > quote)',
                 'class': 'form-control'
             })
         }
         labels = {
-            'content': 'Your Comment'
+            'content': 'Your Comment (Markdown supported)'
+        }
+        help_texts = {
+            'content': 'You can use: **bold**, *italic*, `code`, lists, and > quotes. Images and links are not allowed.'
         }

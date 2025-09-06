@@ -191,6 +191,62 @@
         .comment-form.show {
             display: block;
         }
+        /* Markdown styling for comments */
+        .comment-content {
+            line-height: 1.5;
+        }
+        .comment-content h1, .comment-content h2, .comment-content h3 {
+            color: #333;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .comment-content p {
+            margin-bottom: 10px;
+        }
+        .comment-content ul, .comment-content ol {
+            margin-bottom: 10px;
+            padding-left: 20px;
+        }
+        .comment-content li {
+            margin-bottom: 3px;
+        }
+        .comment-content blockquote {
+            border-left: 3px solid #007bff;
+            padding-left: 15px;
+            margin: 10px 0;
+            font-style: italic;
+            color: #666;
+            background-color: #f8f9fa;
+            border-radius: 3px;
+            padding: 10px 15px;
+        }
+        .comment-content code {
+            background-color: #f1f3f4;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #d63384;
+        }
+        .comment-content pre {
+            background-color: #f1f3f4;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .comment-content pre code {
+            background: none;
+            padding: 0;
+            color: #333;
+        }
+        .comment-content strong {
+            color: #333;
+        }
+        .comment-content em {
+            color: #555;
+        }
         .navbar {
             background-color: #007bff;
             padding: 15px 0;
@@ -291,7 +347,7 @@
                         <strong>{{ comment.author }}</strong> on {{ comment.created_at|date:"F d, Y \a\t H:i" }}
                     </div>
                     <div class="comment-content">
-                        {{ comment.content|linebreaks }}
+                        {{ comment.content|markdown_to_html_safe }}
                     </div>
                 </div>
             {% endfor %}
@@ -305,11 +361,21 @@
             </button>
             <div class="comment-form" id="commentForm">
                 <h4>Add a comment</h4>
+                <div style="background-color: #e7f3ff; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 0.9em;">
+                    <strong>💡 Markdown Quick Reference:</strong><br>
+                    <code>**bold**</code> <code>*italic*</code> <code>`code`</code> <code>&gt; quote</code> <code>- list</code>
+                    <br><small style="color: #666;">Images and links are not allowed in comments.</small>
+                </div>
                 <form method="post">
                     {% csrf_token %}
                     <div class="form-group">
                         {{ form.content.label_tag }}
                         {{ form.content }}
+                        {% if form.content.help_text %}
+                            <small style="color: #666; font-size: 0.9em; display: block; margin-top: 5px;">
+                                {{ form.content.help_text }}
+                            </small>
+                        {% endif %}
                     </div>
                     <button type="submit" class="btn">Post Comment</button>
                     <button type="button" class="btn" style="background-color: #6c757d; margin-left: 10px;" onclick="toggleCommentForm()">Cancel</button>
