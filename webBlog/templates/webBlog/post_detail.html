@@ -291,14 +291,14 @@
 <body>
     <nav class="navbar">
         <div class="nav-content">
-            <a href="{% url 'post_list' %}" class="nav-title">📝 My Blog</a>
+            <a href="{% url 'blog:post_list' %}" class="nav-title">📝 My Blog</a>
             <div class="nav-links">
-                <a href="{% url 'markdown_guide' %}" class="nav-link">📖 Markdown Guide</a>
+                <a href="{% url 'blog:markdown_guide' %}" class="nav-link">📖 Markdown Guide</a>
                 {% if user.is_authenticated %}
                     <span class="nav-user">👋 Hello, {{ user.username }}!</span>
-                    <a href="{% url 'logout' %}" class="nav-link">🚪 Logout</a>
+                    <a href="{% url 'blog:logout' %}" class="nav-link">🚪 Logout</a>
                 {% else %}
-                    <a href="{% url 'login' %}" class="nav-link">🔐 Login</a>
+                    <a href="{% url 'blog:login' %}" class="nav-link">🔐 Login</a>
                 {% endif %}
             </div>
         </div>
@@ -314,7 +314,7 @@
         </div>
     {% endif %}
 
-    <a href="{% url 'post_list' %}" class="back-link">← Back to all posts</a>
+    <a href="{% url 'blog:post_list' %}" class="back-link">← Back to all posts</a>
     
     <h1>{{ post.title }}</h1>
     <div class="post-meta">
@@ -384,7 +384,7 @@
         {% else %}
             <div class="login-prompt">
                 <h4>💬 Want to join the conversation?</h4>
-                <p><a href="{% url 'login' %}">Login</a> to add your comment and engage with the community!</p>
+                <p><a href="{% url 'blog:login' %}">Login</a> to add your comment and engage with the community!</p>
                 <p style="font-size: 0.9em; color: #666;">Don't have an account? Contact the admin or <a href="/admin/">create one here</a>.</p>
             </div>
         {% endif %}

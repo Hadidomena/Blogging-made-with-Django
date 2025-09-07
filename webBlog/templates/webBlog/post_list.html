@@ -118,14 +118,14 @@
 <body>
     <nav class="navbar">
         <div class="nav-content">
-            <a href="{% url 'post_list' %}" class="nav-title">📝 My Blog</a>
+            <a href="{% url 'blog:post_list' %}" class="nav-title">📝 My Blog</a>
             <div class="nav-links">
-                <a href="{% url 'markdown_guide' %}" class="nav-link">📖 Markdown Guide</a>
+                <a href="{% url 'blog:markdown_guide' %}" class="nav-link">📖 Markdown Guide</a>
                 {% if user.is_authenticated %}
                     <span class="nav-user">👋 Hello, {{ user.username }}!</span>
-                    <a href="{% url 'logout' %}" class="nav-link">🚪 Logout</a>
+                    <a href="{% url 'blog:logout' %}" class="nav-link">🚪 Logout</a>
                 {% else %}
-                    <a href="{% url 'login' %}" class="nav-link">🔐 Login</a>
+                    <a href="{% url 'blog:login' %}" class="nav-link">🔐 Login</a>
                 {% endif %}
             </div>
         </div>
@@ -152,14 +152,14 @@
     <h1>Blog Posts</h1>
     
     <p style="text-align: center; margin-bottom: 30px;">
-        <a href="{% url 'markdown_guide' %}" style="color: #007bff; text-decoration: none;">📝 Markdown Formatting Guide</a> | 
+        <a href="{% url 'blog:markdown_guide' %}" style="color: #007bff; text-decoration: none;">📝 Markdown Formatting Guide</a> | 
         <a href="/admin/" style="color: #007bff; text-decoration: none;">⚙️ Admin Panel</a>
     </p>
     
     {% if posts %}
         {% for post in posts %}
             <div class="post">
-                <h2><a href="{% url 'post_detail' post.pk %}">{{ post.title }}</a></h2>
+                <h2><a href="{% url 'blog:post_detail' post.pk %}">{{ post.title }}</a></h2>
                 <div class="post-meta">
                     By {{ post.author }} on {{ post.created_at|date:"F d, Y" }}
                 </div>

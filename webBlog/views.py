@@ -22,10 +22,10 @@ def post_detail(request, pk):
                 comment.author = request.user
                 comment.save()
                 messages.success(request, 'Your comment has been added!')
-                return redirect('post_detail', pk=post.pk)
+                return redirect('blog:post_detail', pk=post.pk)
         else:
             messages.error(request, 'You need to be logged in to comment.')
-            return redirect('login')
+            return redirect('blog:login')
     else:
         form = CommentForm()
     
@@ -46,7 +46,7 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, f'Welcome back, {user.username}!')
-            return redirect('post_list')
+            return redirect('blog:post_list')
         else:
             messages.error(request, 'Invalid username or password.')
     return render(request, 'webBlog/login.html')
@@ -54,4 +54,4 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     messages.success(request, 'You have been logged out.')
-    return redirect('post_list')
+    return redirect('blog:post_list')
