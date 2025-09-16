@@ -286,6 +286,29 @@
             color: white;
             font-size: 0.9em;
         }
+        .login-prompt {
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .login-prompt h4 {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        .login-prompt p {
+            margin-bottom: 8px;
+        }
+        .login-prompt a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .login-prompt a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -299,6 +322,7 @@
                     <a href="{% url 'blog:logout' %}" class="nav-link">🚪 Logout</a>
                 {% else %}
                     <a href="{% url 'blog:login' %}" class="nav-link">🔐 Login</a>
+                    <a href="{% url 'blog:signup' %}" class="nav-link">📝 Sign Up</a>
                 {% endif %}
             </div>
         </div>
@@ -385,7 +409,7 @@
             <div class="login-prompt">
                 <h4>💬 Want to join the conversation?</h4>
                 <p><a href="{% url 'blog:login' %}">Login</a> to add your comment and engage with the community!</p>
-                <p style="font-size: 0.9em; color: #666;">Don't have an account? Contact the admin or <a href="/admin/">create one here</a>.</p>
+                <p style="font-size: 0.9em; color: #666;">Don't have an account? <a href="{% url 'blog:signup' %}" style="color: #28a745;">Sign up for free!</a></p>
             </div>
         {% endif %}
     </div>

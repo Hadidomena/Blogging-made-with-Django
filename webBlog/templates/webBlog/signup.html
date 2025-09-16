@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login - My Blog</title>
+    <title>Sign Up - My Blog</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 400px;
+            max-width: 450px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f8f9fa;
         }
-        .login-container {
+        .signup-container {
             background-color: white;
             padding: 30px;
             border-radius: 10px;
@@ -35,12 +35,12 @@
         }
         .form-control:focus {
             outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0,123,255,0.3);
+            border-color: #28a745;
+            box-shadow: 0 0 5px rgba(40,167,69,0.3);
         }
         .btn {
             width: 100%;
-            background-color: #007bff;
+            background-color: #28a745;
             color: white;
             padding: 12px;
             border: none;
@@ -50,7 +50,7 @@
             margin-bottom: 15px;
         }
         .btn:hover {
-            background-color: #0056b3;
+            background-color: #218838;
         }
         .back-link {
             display: block;
@@ -60,6 +60,16 @@
             margin-top: 15px;
         }
         .back-link:hover {
+            text-decoration: underline;
+        }
+        .login-link {
+            display: block;
+            text-align: center;
+            color: #28a745;
+            text-decoration: none;
+            margin-top: 10px;
+        }
+        .login-link:hover {
             text-decoration: underline;
         }
         .messages {
@@ -81,12 +91,24 @@
             border: 1px solid #f5c6cb;
         }
         .help-text {
-            background-color: #e7f3ff;
+            background-color: #e8f5e8;
             padding: 15px;
             border-radius: 5px;
             margin-top: 20px;
             font-size: 14px;
             color: #0c5460;
+        }
+        .form-errors {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        .form-errors ul {
+            margin: 0;
+            padding-left: 20px;
         }
         h1 {
             text-align: center;
@@ -96,8 +118,8 @@
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h1>🔐 Login</h1>
+    <div class="signup-container">
+        <h1>📝 Create Account</h1>
         
         {% if messages %}
             <div class="messages">
@@ -109,26 +131,51 @@
             </div>
         {% endif %}
         
+        {% if form.errors %}
+            <div class="form-errors">
+                <strong>Please correct the following errors:</strong>
+                <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        
         <form method="post">
             {% csrf_token %}
+            
             <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" class="form-control" required>
+                <label for="{{ form.username.id_for_label }}">Username:</label>
+                {{ form.username }}
             </div>
             
             <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" class="form-control" required>
+                <label for="{{ form.email.id_for_label }}">Email:</label>
+                {{ form.email }}
             </div>
             
-            <button type="submit" class="btn">Login</button>
+            <div class="form-group">
+                <label for="{{ form.password1.id_for_label }}">Password:</label>
+                {{ form.password1 }}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.password2.id_for_label }}">Confirm Password:</label>
+                {{ form.password2 }}
+            </div>
+            
+            <button type="submit" class="btn">Create Account</button>
         </form>
         
         <div class="help-text">
-            <strong>💡 Need an account?</strong><br>
-            <a href="{% url 'blog:signup' %}" style="color: #28a745; text-decoration: none;">Create one here for free!</a>
+            <strong>🎉 Join our community!</strong><br>
+            Create your account to start commenting on blog posts and engage with other readers.
         </div>
         
+        <a href="{% url 'blog:login' %}" class="login-link">Already have an account? Sign in here</a>
         <a href="{% url 'blog:post_list' %}" class="back-link">← Back to Blog</a>
     </div>
 </body>

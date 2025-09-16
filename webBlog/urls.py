@@ -9,4 +9,5 @@ urlpatterns = [
     path('markdown-guide/', views.MarkdownGuideView.as_view(), name='markdown_guide'),
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logout/', views.CustomLogoutView.as_view(), name='logout'),
+    path('signup/', views.SignUpView.as_view(), name='signup'),
 ]

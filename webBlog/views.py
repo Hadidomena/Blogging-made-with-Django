@@ -1,10 +1,11 @@
 from django.shortcuts import redirect
 from django.contrib.auth.views import LoginView, LogoutView
-from django.views.generic import ListView, DetailView, TemplateView
+from django.views.generic import ListView, DetailView, TemplateView, CreateView
 from django.contrib import messages
 from django.urls import reverse_lazy
+from django.contrib.auth import login
 from .models import Post, Comment
-from .forms import CommentForm, CustomAuthenticationForm
+from .forms import CommentForm, CustomAuthenticationForm, CustomUserCreationForm
 
 
 class PostListView(ListView):
@@ -22,7 +23,8 @@ class PostDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['comments'] = self.object.comments.all().order_by('created_at')
-        context['form'] = CommentForm()
+        if self.request.user.is_authenticated:
+            context['form'] = CommentForm()
         return context
     
     def post(self, request, *args, **kwargs):
@@ -66,8 +68,30 @@ class CustomLoginView(LoginView):
 
 class CustomLogoutView(LogoutView):
     next_page = 'blog:post_list'
+    http_method_names = ['get', 'post']
     
     def dispatch(self, request, *args, **kwargs):
         response = super().dispatch(request, *args, **kwargs)
         messages.success(request, 'You have been logged out.')
         return response
+
+
+class SignUpView(CreateView):
+    form_class = CustomUserCreationForm
+    template_name = 'webBlog/signup.html'
+    success_url = reverse_lazy('blog:post_list')
+    
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('blog:post_list')
+        return super().dispatch(request, *args, **kwargs)
+    
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        login(self.request, self.object)
+        messages.success(self.request, f'Welcome to the blog, {self.object.username}! Your account has been created.')
+        return response
+    
+    def form_invalid(self, form):
+        messages.error(self.request, 'Please correct the errors below.')
+        return super().form_invalid(form)
