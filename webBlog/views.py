@@ -1,57 +1,73 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import redirect
+from django.contrib.auth.views import LoginView, LogoutView
+from django.views.generic import ListView, DetailView, TemplateView
 from django.contrib import messages
+from django.urls import reverse_lazy
 from .models import Post, Comment
-from .forms import CommentForm
+from .forms import CommentForm, CustomAuthenticationForm
 
-def post_list(request):
-    posts = Post.objects.all()
-    return render(request, 'webBlog/post_list.html', {'posts': posts})
 
-def post_detail(request, pk):
-    post = get_object_or_404(Post, pk=pk)
-    comments = post.comments.all()
+class PostListView(ListView):
+    model = Post
+    template_name = 'webBlog/post_list.html'
+    context_object_name = 'posts'
+    ordering = ['-created_at']
+
+
+class PostDetailView(DetailView):
+    model = Post
+    template_name = 'webBlog/post_detail.html'
+    context_object_name = 'post'
     
-    if request.method == 'POST':
-        if request.user.is_authenticated:
-            form = CommentForm(request.POST)
-            if form.is_valid():
-                comment = form.save(commit=False)
-                comment.post = post
-                comment.author = request.user
-                comment.save()
-                messages.success(request, 'Your comment has been added!')
-                return redirect('blog:post_detail', pk=post.pk)
-        else:
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['comments'] = self.object.comments.all().order_by('created_at')
+        context['form'] = CommentForm()
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        
+        if not request.user.is_authenticated:
             messages.error(request, 'You need to be logged in to comment.')
             return redirect('blog:login')
-    else:
-        form = CommentForm()
+        
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = self.object
+            comment.author = request.user
+            comment.save()
+            messages.success(request, 'Your comment has been added!')
+            return redirect('blog:post_detail', pk=self.object.pk)
+        
+        context = self.get_context_data()
+        context['form'] = form
+        return self.render_to_response(context)
+
+
+class MarkdownGuideView(TemplateView):
+    template_name = 'webBlog/markdown_guide.html'
+
+
+class CustomLoginView(LoginView):
+    template_name = 'webBlog/login.html'
+    form_class = CustomAuthenticationForm
+    redirect_authenticated_user = True
     
-    return render(request, 'webBlog/post_detail.html', {
-        'post': post,
-        'comments': comments,
-        'form': form
-    })
+    def get_success_url(self):
+        messages.success(self.request, f'Welcome back, {self.request.user.username}!')
+        return reverse_lazy('blog:post_list')
+    
+    def form_invalid(self, form):
+        messages.error(self.request, 'Invalid username or password.')
+        return super().form_invalid(form)
 
-def markdown_guide(request):
-    return render(request, 'webBlog/markdown_guide.html')
 
-def login_view(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            messages.success(request, f'Welcome back, {user.username}!')
-            return redirect('blog:post_list')
-        else:
-            messages.error(request, 'Invalid username or password.')
-    return render(request, 'webBlog/login.html')
-
-def logout_view(request):
-    logout(request)
-    messages.success(request, 'You have been logged out.')
-    return redirect('blog:post_list')
+class CustomLogoutView(LogoutView):
+    next_page = 'blog:post_list'
+    
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        messages.success(request, 'You have been logged out.')
+        return response

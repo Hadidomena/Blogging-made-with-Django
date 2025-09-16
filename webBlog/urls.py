@@ -4,9 +4,9 @@ from . import views
 app_name = 'blog'
 
 urlpatterns = [
-    path('', views.post_list, name='post_list'),
-    path('post/<int:pk>/', views.post_detail, name='post_detail'),
-    path('markdown-guide/', views.markdown_guide, name='markdown_guide'),
-    path('login/', views.login_view, name='login'),
-    path('logout/', views.logout_view, name='logout'),
+    path('', views.PostListView.as_view(), name='post_list'),
+    path('post/<int:pk>/', views.PostDetailView.as_view(), name='post_detail'),
+    path('markdown-guide/', views.MarkdownGuideView.as_view(), name='markdown_guide'),
+    path('login/', views.CustomLoginView.as_view(), name='login'),
+    path('logout/', views.CustomLogoutView.as_view(), name='logout'),
 ]
