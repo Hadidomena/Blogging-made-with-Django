@@ -3,7 +3,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.views.generic import ListView, DetailView, TemplateView, CreateView
 from django.contrib import messages
 from django.urls import reverse_lazy
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from .models import Post, Comment
 from .forms import CommentForm, CustomAuthenticationForm, CustomUserCreationForm
 
@@ -70,10 +70,16 @@ class CustomLogoutView(LogoutView):
     next_page = 'blog:post_list'
     http_method_names = ['get', 'post']
     
-    def dispatch(self, request, *args, **kwargs):
-        response = super().dispatch(request, *args, **kwargs)
+    def get(self, request, *args, **kwargs):
+        # For GET requests, perform logout and redirect
+        if request.user.is_authenticated:
+            messages.success(request, 'You have been logged out.')
+            logout(request)
+        return redirect('blog:post_list')
+    
+    def post(self, request, *args, **kwargs):
         messages.success(request, 'You have been logged out.')
-        return response
+        return super().post(request, *args, **kwargs)
 
 
 class SignUpView(CreateView):
