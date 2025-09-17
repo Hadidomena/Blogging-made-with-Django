@@ -28,8 +28,12 @@ class CommentForm(forms.ModelForm):
         if content:
             if len(content.strip()) < 3:
                 raise forms.ValidationError("Comment must be at least 3 characters long.")
-            if content.count('http') > 2:
-                raise forms.ValidationError("Too many links in comment.")
+            # Check for image markdown syntax
+            if '![' in content and '](' in content:
+                raise forms.ValidationError("Images are not allowed in comments.")
+            # Check for link markdown syntax
+            if '[' in content and '](' in content and not '![' in content:
+                raise forms.ValidationError("Links are not allowed in comments.")
         return content
 
 

@@ -38,7 +38,8 @@ class PostModelTest(TestCase):
         Comment.objects.create(
             post=self.post,
             author=self.user,
-            content='Test comment'
+            content='Test comment',
+            is_approved=True
         )
         self.assertEqual(self.post.comment_count(), 1)
 
@@ -71,7 +72,8 @@ class CommentModelTest(TestCase):
         self.comment = Comment.objects.create(
             post=self.post,
             author=self.user,
-            content='Test comment with **markdown**'
+            content='Test comment with **markdown**',
+            is_approved=True
         )
 
     def test_comment_creation(self):
@@ -85,14 +87,15 @@ class CommentModelTest(TestCase):
         self.assertEqual(str(self.comment), expected)
 
     def test_comment_get_absolute_url(self):
-        expected_url = reverse('blog:post_detail', args=[self.post.pk])
+        expected_url = f"{reverse('blog:post_detail', args=[self.post.pk])}#comment-{self.comment.id}"
         self.assertEqual(self.comment.get_absolute_url(), expected_url)
 
     def test_comment_ordering(self):
         newer_comment = Comment.objects.create(
             post=self.post,
             author=self.user,
-            content='Newer comment'
+            content='Newer comment',
+            is_approved=True
         )
         
         comments = Comment.objects.all()
@@ -188,7 +191,7 @@ class AuthenticationViewTest(TestCase):
             'password': 'wrongpassword'
         })
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Please enter a correct username and password')
+        self.assertContains(response, 'Invalid username or password')
 
     def test_signup_view_get(self):
         response = self.client.get(reverse('blog:signup'))
