@@ -56,6 +56,59 @@ class PostModelTest(TestCase):
         self.assertEqual(posts.first(), self.post)
         self.assertEqual(posts.last(), older_post)
 
+    def test_post_created_at_auto_set(self):
+        """Test that created_at is automatically set when a post is created"""
+        before_creation = timezone.now()
+        new_post = Post.objects.create(
+            title='New Post',
+            content='New content',
+            author=self.user
+        )
+        after_creation = timezone.now()
+        
+        self.assertIsNotNone(new_post.created_at)
+        self.assertGreaterEqual(new_post.created_at, before_creation)
+        self.assertLessEqual(new_post.created_at, after_creation)
+
+    def test_post_updated_at_auto_set(self):
+        """Test that updated_at is automatically set and updated"""
+        original_updated_at = self.post.updated_at
+        
+        # Small delay to ensure timestamp difference
+        import time
+        time.sleep(0.01)
+        
+        # Update the post
+        self.post.title = 'Updated Title'
+        self.post.save()
+        
+        self.assertIsNotNone(self.post.updated_at)
+        self.assertGreater(self.post.updated_at, original_updated_at)
+
+    def test_post_created_vs_updated_initially_same(self):
+        """Test that created_at and updated_at are initially the same"""
+        new_post = Post.objects.create(
+            title='Test Post',
+            content='Test content',
+            author=self.user
+        )
+        # Allow for small timestamp differences (within 1 second)
+        time_diff = abs((new_post.updated_at - new_post.created_at).total_seconds())
+        self.assertLess(time_diff, 1.0)
+
+    def test_post_date_immutable_created_at(self):
+        """Test that created_at doesn't change when post is updated"""
+        original_created_at = self.post.created_at
+        
+        # Update the post
+        self.post.content = 'Updated content'
+        self.post.save()
+        
+        # Refresh from database
+        self.post.refresh_from_db()
+        
+        self.assertEqual(self.post.created_at, original_created_at)
+
 
 class CommentModelTest(TestCase):
     def setUp(self):
@@ -101,6 +154,21 @@ class CommentModelTest(TestCase):
         comments = Comment.objects.all()
         self.assertEqual(comments.first(), self.comment)
         self.assertEqual(comments.last(), newer_comment)
+
+    def test_comment_created_at_auto_set(self):
+        """Test that comment created_at is automatically set"""
+        before_creation = timezone.now()
+        new_comment = Comment.objects.create(
+            post=self.post,
+            author=self.user,
+            content='New comment',
+            is_approved=True
+        )
+        after_creation = timezone.now()
+        
+        self.assertIsNotNone(new_comment.created_at)
+        self.assertGreaterEqual(new_comment.created_at, before_creation)
+        self.assertLessEqual(new_comment.created_at, after_creation)
 
 
 class PostViewTest(TestCase):
@@ -161,6 +229,60 @@ class PostViewTest(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Comment.objects.filter(content='This is a test comment').exists())
+
+    def test_post_list_displays_creation_date(self):
+        """Test that post list view displays formatted creation date"""
+        response = self.client.get(reverse('blog:post_list'))
+        self.assertEqual(response.status_code, 200)
+        
+        # Check that the date is displayed in the expected format
+        expected_date = self.post.created_at.strftime('%B %d, %Y')
+        self.assertContains(response, expected_date)
+        self.assertContains(response, f'By {self.user.username} on')
+
+    def test_post_detail_displays_creation_date(self):
+        """Test that post detail view displays formatted creation date"""
+        response = self.client.get(reverse('blog:post_detail', args=[self.post.pk]))
+        self.assertEqual(response.status_code, 200)
+        
+        # Check that the date is displayed in the expected format
+        expected_date = self.post.created_at.strftime('%B %d, %Y')
+        self.assertContains(response, expected_date)
+        self.assertContains(response, f'By {self.user.username} on')
+
+    def test_post_detail_shows_updated_at_when_different(self):
+        """Test that updated date is shown when post is modified"""
+        # Modify the post to trigger updated_at change
+        import time
+        time.sleep(0.01)  # Small delay to ensure different timestamp
+        self.post.content = 'Updated content'
+        self.post.save()
+        
+        response = self.client.get(reverse('blog:post_detail', args=[self.post.pk]))
+        self.assertEqual(response.status_code, 200)
+        
+        # Both dates should be visible
+        created_date = self.post.created_at.strftime('%B %d, %Y')
+        updated_date = self.post.updated_at.strftime('%B %d, %Y')
+        self.assertContains(response, created_date)
+
+    def test_comment_displays_creation_date(self):
+        """Test that comments display their creation date"""
+        comment = Comment.objects.create(
+            post=self.post,
+            author=self.user,
+            content='Test comment',
+            is_approved=True
+        )
+        
+        response = self.client.get(reverse('blog:post_detail', args=[self.post.pk]))
+        self.assertEqual(response.status_code, 200)
+        
+        # Check comment date format: "F d, Y \a\t H:i"
+        expected_date = comment.created_at.strftime('%B %d, %Y at %H:%M')
+        self.assertContains(response, self.user.username)
+        # The date format in template includes "at" so check for that
+        self.assertContains(response, 'at')
 
 
 class AuthenticationViewTest(TestCase):
@@ -332,6 +454,60 @@ class URLTest(TestCase):
         self.assertEqual(reverse('blog:logout'), '/logout/')
         self.assertEqual(reverse('blog:signup'), '/signup/')
         self.assertEqual(reverse('blog:markdown_guide'), '/markdown-guide/')
+
+
+class DateFormattingTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username='testuser',
+            email='test@example.com',
+            password='testpass123'
+        )
+    
+    def test_post_date_formatting_in_templates(self):
+        """Test that dates are properly formatted in templates"""
+        # Create a post with a specific date
+        specific_date = timezone.datetime(2025, 9, 18, 15, 30, 45, tzinfo=timezone.get_current_timezone())
+        post = Post.objects.create(
+            title='Date Test Post',
+            content='Content for date testing',
+            author=self.user
+        )
+        # Manually set the created_at to a specific date for testing
+        post.created_at = specific_date
+        post.save()
+        
+        # Test post list view date formatting
+        response = self.client.get(reverse('blog:post_list'))
+        self.assertContains(response, 'September 18, 2025')
+        
+        # Test post detail view date formatting
+        response = self.client.get(reverse('blog:post_detail', args=[post.pk]))
+        self.assertContains(response, 'September 18, 2025')
+    
+    def test_comment_date_formatting_in_templates(self):
+        """Test that comment dates are properly formatted"""
+        post = Post.objects.create(
+            title='Test Post',
+            content='Test content',
+            author=self.user
+        )
+        
+        # Create comment with specific date
+        specific_date = timezone.datetime(2025, 9, 18, 15, 30, 45, tzinfo=timezone.get_current_timezone())
+        comment = Comment.objects.create(
+            post=post,
+            author=self.user,
+            content='Test comment',
+            is_approved=True
+        )
+        comment.created_at = specific_date
+        comment.save()
+        
+        response = self.client.get(reverse('blog:post_detail', args=[post.pk]))
+        # Comment format should be "F d, Y \a\t H:i" = "September 18, 2025 at 15:30"
+        self.assertContains(response, 'September 18, 2025 at 15:30')
 
 
 class IntegrationTest(TestCase):
