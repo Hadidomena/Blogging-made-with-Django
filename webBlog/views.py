@@ -13,6 +13,26 @@ class PostListView(ListView):
     template_name = 'webBlog/post_list.html'
     context_object_name = 'posts'
     ordering = ['-created_at']
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        sort_by = self.request.GET.get('sort', 'newest')
+        
+        if sort_by == 'oldest':
+            queryset = queryset.order_by('created_at')
+        elif sort_by == 'updated_newest':
+            queryset = queryset.order_by('-updated_at')
+        elif sort_by == 'updated_oldest':
+            queryset = queryset.order_by('updated_at')
+        else:  # default to 'newest'
+            queryset = queryset.order_by('-created_at')
+            
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_sort'] = self.request.GET.get('sort', 'newest')
+        return context
 
 
 class PostDetailView(DetailView):
@@ -22,7 +42,17 @@ class PostDetailView(DetailView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['comments'] = self.object.comments.all().order_by('created_at')
+        
+        # Handle comment sorting
+        comment_sort = self.request.GET.get('comment_sort', 'oldest')
+        if comment_sort == 'newest':
+            comments = self.object.comments.all().order_by('-created_at')
+        else:  # default to 'oldest'
+            comments = self.object.comments.all().order_by('created_at')
+            
+        context['comments'] = comments
+        context['current_comment_sort'] = comment_sort
+        
         if self.request.user.is_authenticated:
             context['form'] = CommentForm()
         return context

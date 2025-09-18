@@ -456,6 +456,176 @@ class URLTest(TestCase):
         self.assertEqual(reverse('blog:markdown_guide'), '/markdown-guide/')
 
 
+class SortingTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username='testuser',
+            email='test@example.com',
+            password='testpass123'
+        )
+        
+        # Create posts with different dates for testing sorting
+        now = timezone.now()
+        
+        self.old_post = Post.objects.create(
+            title='Old Post',
+            content='Old content',
+            author=self.user
+        )
+        self.old_post.created_at = now - timezone.timedelta(days=3)
+        self.old_post.save()
+        
+        self.middle_post = Post.objects.create(
+            title='Middle Post',
+            content='Middle content',
+            author=self.user
+        )
+        self.middle_post.created_at = now - timezone.timedelta(days=1)
+        self.middle_post.save()
+        
+        self.new_post = Post.objects.create(
+            title='New Post',
+            content='New content',
+            author=self.user
+        )
+        
+        # Update one post to have different updated_at
+        import time
+        time.sleep(0.01)
+        self.old_post.title = 'Recently Updated Old Post'
+        self.old_post.save()
+
+    def test_post_sorting_newest_first(self):
+        """Test posts are sorted by creation date, newest first (default)"""
+        response = self.client.get(reverse('blog:post_list'))
+        posts = response.context['posts']
+        
+        self.assertEqual(posts[0], self.new_post)
+        self.assertEqual(posts[1], self.middle_post)
+        self.assertEqual(posts[2], self.old_post)
+
+    def test_post_sorting_oldest_first(self):
+        """Test posts are sorted by creation date, oldest first"""
+        response = self.client.get(reverse('blog:post_list') + '?sort=oldest')
+        posts = response.context['posts']
+        
+        self.assertEqual(posts[0], self.old_post)
+        self.assertEqual(posts[1], self.middle_post)
+        self.assertEqual(posts[2], self.new_post)
+
+    def test_post_sorting_updated_newest(self):
+        """Test posts are sorted by update date, newest first"""
+        response = self.client.get(reverse('blog:post_list') + '?sort=updated_newest')
+        posts = response.context['posts']
+        
+        # old_post was updated most recently
+        self.assertEqual(posts[0], self.old_post)
+
+    def test_post_sorting_updated_oldest(self):
+        """Test posts are sorted by update date, oldest first"""
+        response = self.client.get(reverse('blog:post_list') + '?sort=updated_oldest')
+        posts = list(response.context['posts'])
+        
+        # old_post was updated most recently, so should be last
+        self.assertEqual(posts[-1], self.old_post)
+
+    def test_post_list_current_sort_context(self):
+        """Test that current sort is passed to template context"""
+        response = self.client.get(reverse('blog:post_list') + '?sort=oldest')
+        self.assertEqual(response.context['current_sort'], 'oldest')
+        
+        response = self.client.get(reverse('blog:post_list'))
+        self.assertEqual(response.context['current_sort'], 'newest')
+
+    def test_comment_sorting_oldest_first(self):
+        """Test comments are sorted oldest first (default)"""
+        now = timezone.now()
+        
+        old_comment = Comment.objects.create(
+            post=self.new_post,
+            author=self.user,
+            content='Old comment',
+            is_approved=True
+        )
+        old_comment.created_at = now - timezone.timedelta(hours=2)
+        old_comment.save()
+        
+        new_comment = Comment.objects.create(
+            post=self.new_post,
+            author=self.user,
+            content='New comment',
+            is_approved=True
+        )
+        
+        response = self.client.get(reverse('blog:post_detail', args=[self.new_post.pk]))
+        comments = response.context['comments']
+        
+        self.assertEqual(comments[0], old_comment)
+        self.assertEqual(comments[1], new_comment)
+
+    def test_comment_sorting_newest_first(self):
+        """Test comments are sorted newest first"""
+        now = timezone.now()
+        
+        old_comment = Comment.objects.create(
+            post=self.new_post,
+            author=self.user,
+            content='Old comment',
+            is_approved=True
+        )
+        old_comment.created_at = now - timezone.timedelta(hours=2)
+        old_comment.save()
+        
+        new_comment = Comment.objects.create(
+            post=self.new_post,
+            author=self.user,
+            content='New comment',
+            is_approved=True
+        )
+        
+        response = self.client.get(
+            reverse('blog:post_detail', args=[self.new_post.pk]) + '?comment_sort=newest'
+        )
+        comments = response.context['comments']
+        
+        self.assertEqual(comments[0], new_comment)
+        self.assertEqual(comments[1], old_comment)
+
+    def test_comment_sort_context(self):
+        """Test that current comment sort is passed to template context"""
+        response = self.client.get(
+            reverse('blog:post_detail', args=[self.new_post.pk]) + '?comment_sort=newest'
+        )
+        self.assertEqual(response.context['current_comment_sort'], 'newest')
+        
+        response = self.client.get(reverse('blog:post_detail', args=[self.new_post.pk]))
+        self.assertEqual(response.context['current_comment_sort'], 'oldest')
+
+    def test_post_sorting_ui_elements(self):
+        """Test that sorting UI elements are present in post list"""
+        response = self.client.get(reverse('blog:post_list'))
+        self.assertContains(response, 'Sort Posts by:')
+        self.assertContains(response, 'Newest First')
+        self.assertContains(response, 'Oldest First')
+        self.assertContains(response, 'Recently Updated')
+        self.assertContains(response, 'Least Recently Updated')
+
+    def test_comment_sorting_ui_elements(self):
+        """Test that comment sorting UI elements are present when comments exist"""
+        Comment.objects.create(
+            post=self.new_post,
+            author=self.user,
+            content='Test comment',
+            is_approved=True
+        )
+        
+        response = self.client.get(reverse('blog:post_detail', args=[self.new_post.pk]))
+        self.assertContains(response, 'Sort Comments by:')
+        self.assertContains(response, 'Oldest First')
+        self.assertContains(response, 'Newest First')
+
+
 class DateFormattingTest(TestCase):
     def setUp(self):
         self.client = Client()

@@ -113,6 +113,34 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+        .sort-container {
+            margin-bottom: 20px;
+            text-align: center;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .sort-buttons {
+            margin-top: 10px;
+        }
+        .sort-btn {
+            padding: 8px 15px;
+            margin: 0 5px;
+            text-decoration: none;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            display: inline-block;
+            background-color: white;
+            color: #007bff;
+            transition: all 0.3s ease;
+        }
+        .sort-btn:hover {
+            background-color: #e6f3ff;
+        }
+        .sort-btn.active {
+            background-color: #007bff;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -156,6 +184,25 @@
         <a href="{% url 'blog:markdown_guide' %}" style="color: #007bff; text-decoration: none;">📝 Markdown Formatting Guide</a> | 
         <a href="/admin/" style="color: #007bff; text-decoration: none;">⚙️ Admin Panel</a>
     </p>
+    
+    <!-- Sorting Controls -->
+    <div class="sort-container">
+        <strong>📅 Sort Posts by:</strong>
+        <div class="sort-buttons">
+            <a href="?sort=newest" class="sort-btn {% if current_sort == 'newest' %}active{% endif %}">
+                📅⬇️ Newest First
+            </a>
+            <a href="?sort=oldest" class="sort-btn {% if current_sort == 'oldest' %}active{% endif %}">
+                📅⬆️ Oldest First
+            </a>
+            <a href="?sort=updated_newest" class="sort-btn {% if current_sort == 'updated_newest' %}active{% endif %}">
+                🔄⬇️ Recently Updated
+            </a>
+            <a href="?sort=updated_oldest" class="sort-btn {% if current_sort == 'updated_oldest' %}active{% endif %}">
+                🔄⬆️ Least Recently Updated
+            </a>
+        </div>
+    </div>
     
     {% if posts %}
         {% for post in posts %}

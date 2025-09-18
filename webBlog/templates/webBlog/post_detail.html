@@ -309,6 +309,36 @@
         .login-prompt a:hover {
             text-decoration: underline;
         }
+        .comment-sort-container {
+            margin-bottom: 20px;
+            text-align: center;
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+        .comment-sort-buttons {
+            margin-top: 8px;
+        }
+        .comment-sort-btn {
+            padding: 6px 12px;
+            margin: 0 5px;
+            text-decoration: none;
+            border: 1px solid #007bff;
+            border-radius: 4px;
+            display: inline-block;
+            background-color: white;
+            color: #007bff;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+        .comment-sort-btn:hover {
+            background-color: #e6f3ff;
+        }
+        .comment-sort-btn.active {
+            background-color: #007bff;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -365,6 +395,18 @@
         {% endif %}
         
         {% if comments %}
+            <!-- Comment Sorting Controls -->
+            <div class="comment-sort-container">
+                <strong>💬 Sort Comments by:</strong>
+                <div class="comment-sort-buttons">
+                    <a href="?comment_sort=oldest" class="comment-sort-btn {% if current_comment_sort == 'oldest' %}active{% endif %}">
+                        📅⬆️ Oldest First
+                    </a>
+                    <a href="?comment_sort=newest" class="comment-sort-btn {% if current_comment_sort == 'newest' %}active{% endif %}">
+                        📅⬇️ Newest First
+                    </a>
+                </div>
+            </div>
             {% for comment in comments %}
                 <div class="comment">
                     <div class="comment-meta">
