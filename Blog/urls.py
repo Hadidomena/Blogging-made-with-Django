@@ -23,6 +23,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('', include('webBlog.urls')),
+    path('api/', include('webBlog.api_urls')),
 ]
 
 # Serve static and media files during development
