@@ -247,8 +247,11 @@ def create_comment(request, post_id):
 def api_login(request):
     try:
         data = json.loads(request.body)
-        username = data.get('username')
-        password = data.get('password')
+        username = data.get('username', '').strip()
+        password = data.get('password', '').strip()
+        
+        if not username or not password:
+            return JsonResponse({'error': 'Username and password are required'}, status=400)
         
         user = authenticate(request, username=username, password=password)
         if user:
