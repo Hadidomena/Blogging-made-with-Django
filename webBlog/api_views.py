@@ -68,16 +68,11 @@ class CommentListCreateView(generics.ListCreateAPIView):
     
     def get_queryset(self):
         post_id = self.kwargs['post_id']
-        queryset = Comment.objects.filter(post_id=post_id)
+        post = Post.objects.get(id=post_id)
         
-        # Handle comment sorting
+        # Handle comment sorting using model method
         comment_sort = self.request.query_params.get('comment_sort', 'oldest')
-        if comment_sort == 'newest':
-            queryset = queryset.order_by('-created_at')
-        else:  # default to 'oldest'
-            queryset = queryset.order_by('created_at')
-            
-        return queryset
+        return post.get_sorted_comments(comment_sort).filter(post_id=post_id)
     
     def perform_create(self, serializer):
         post_id = self.kwargs['post_id']

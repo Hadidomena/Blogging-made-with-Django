@@ -17,6 +17,20 @@ class Post(models.Model):
 
     def comment_count(self):
         return self.comments.count()
+    
+    def get_sorted_comments(self, sort_order='oldest'):
+        """Get comments sorted by creation date
+        
+        Args:
+            sort_order (str): 'oldest' for ascending, 'newest' for descending
+            
+        Returns:
+            QuerySet: Sorted comments
+        """
+        if sort_order == 'newest':
+            return self.comments.all().order_by('-created_at')
+        else:  # default to 'oldest'
+            return self.comments.all().order_by('created_at')
 
     def __str__(self):
         return self.title

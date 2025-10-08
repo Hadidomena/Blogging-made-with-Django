@@ -45,10 +45,7 @@ class PostDetailView(DetailView):
         
         # Handle comment sorting
         comment_sort = self.request.GET.get('comment_sort', 'oldest')
-        if comment_sort == 'newest':
-            comments = self.object.comments.all().order_by('-created_at')
-        else:  # default to 'oldest'
-            comments = self.object.comments.all().order_by('created_at')
+        comments = self.object.get_sorted_comments(comment_sort)
             
         context['comments'] = comments
         context['current_comment_sort'] = comment_sort
